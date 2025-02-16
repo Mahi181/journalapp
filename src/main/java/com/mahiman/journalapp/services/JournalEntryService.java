@@ -34,7 +34,7 @@ public class JournalEntryService {
             JournalEntry saved = journalEntryRepository.save(journalEntry);
             user.getJournalEntries().add(saved); // here we are adding the saved entry to the user's journal entries
            
-            userService.saveEntry(user); // here we are saving the user
+            userService.saveUser(user); // here we are saving the user
 
         } catch (Exception e) {
             log.error("Error while saving journal entry", e);
@@ -56,15 +56,30 @@ public class JournalEntryService {
         return journalEntryRepository.findById(id);
     }
 
-    public void deleteById(ObjectId id, String username) {
+    @Transactional
+    public boolean deleteById(ObjectId id, String username) {
         // boolean removed = false;
         // here we are calling the deleteById method of the repository to delete the entry from the database
-        User user = userService.findByUsername(username);
-        user.getJournalEntries().removeIf(x -> x.getId().equals(id));
-
-        userService.saveEntry(user);
-        journalEntryRepository.deleteById(id);
+        boolean removed = false;
+        try {
+            User user = userService.findByUsername(username);
+            removed = user.getJournalEntries().removeIf(x -> x.getId().equals(id));
+            if (removed) {
+                userService.saveUser(user);
+                journalEntryRepository.deleteById(id);
+            }
+        } catch (Exception e) {
+            log.error("Error ",e);
+            throw new RuntimeException("An error occurred while deleting the entry.", e);
+        }
+        return removed;
+    }
+       
     }
 
-}
+    // public list<JournalEntry> findByUsername(String username) {
+       
+    // }
+
+
 // controller calls--> service calls --> repository

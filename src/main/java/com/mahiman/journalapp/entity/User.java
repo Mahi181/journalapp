@@ -11,11 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.mongodb.lang.NonNull;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Document (collection="users") 
 @Data
-
+@Builder
 // need to map this with collection in the database according to ORM so journal entry will be marked a document it will be like row in mongodb.....means journal entry instance will be similar to row
 public class User {
 
